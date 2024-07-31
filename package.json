@@ -1,0 +1,65 @@
+{
+  "name": "@nasriya/authcrypto",
+  "version": "0.0.1",
+  "description": "AuthCrypto is a versatile cryptographic toolkit for handling JSON Web Tokens (JWT), password hashing, and secure token generation and verification. It provides robust methods for creating and managing JWTs, hashing and verifying passwords with secure algorithms, and generating cryptographically strong random values for various use cases.",
+  "main": "./dist/cjs/manager.js",
+  "module": "./dist/esm/manager.js",
+  "types": "./dist/@types/manager.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/manager.js",
+      "require": "./dist/cjs/manager.js",
+      "types": "./dist/@types/manager.d.ts"
+    }
+  },
+  "maintainers": [
+    {
+      "name": "Ahmad Nasriya",
+      "email": "ahmad@nasriya.net",
+      "url": "https://www.linkedin.com/in/ahmadnasriya/"
+    }
+  ],
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/nasriyasoftware/AuthCrypto"
+  },
+  "scripts": {
+    "build": "npm run build:esm && npm run build:cjs && postbuild",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "postbuild-init": "postbuild-init",
+    "test": "jest"
+  },
+  "author": "Nasriya Software, LLC.",
+  "license": "Nasriya License",
+  "devDependencies": {
+    "@nasriya/postbuild": "^1.1.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.0.0",
+    "ts-jest": "^29.2.3",
+    "typescript": "^5.5.4"
+  },
+  "bugs": {
+    "url": "https://github.com/nasriyasoftware/AuthCrypto/issues"
+  },
+  "homepage": "https://package.nasriya.net/AuthCrypto",
+  "keywords": [
+    "JWT",
+    "Authentication",
+    "Cryptography",
+    "Hashing",
+    "Password Security",
+    "Token Generation",
+    "Token Verification",
+    "Secure Passwords",
+    "Crypto Utilities",
+    "Encryption"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://secure-palestine.paytabs.com/payment/link/148906/5699377"
+  }
+}
