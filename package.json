@@ -1,6 +1,6 @@
 {
   "name": "@nasriya/authcrypto",
-  "version": "0.0.1",
+  "version": "0.0.1-beta",
   "description": "AuthCrypto is a versatile cryptographic toolkit for handling JSON Web Tokens (JWT), password hashing, and secure token generation and verification. It provides robust methods for creating and managing JWTs, hashing and verifying passwords with secure algorithms, and generating cryptographically strong random values for various use cases.",
   "main": "./dist/cjs/manager.js",
   "module": "./dist/esm/manager.js",
