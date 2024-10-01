@@ -128,11 +128,11 @@ authCrypto.crypto.generateSalt(32);
 const value = 'Something to hash';
 const salt = authCrypto.crypto.generateSalt(8);
 
-authCrypto.crypto.hash(value, salt);               // ⇨ 120294cb8e1a5f03a6204b2aa86d2a6c4ad7484eb97d550dda7e9bef61ff7bf68f26f2155d057f477857aaff2a2da5d40e1492a314958185ab3f1cf064763fee
-authCrypto.crypto.hash(value, salt, 'SHA512');     // ⇨ 120294cb8e1a5f03a6204b2aa86d2a6c4ad7484eb97d550dda7e9bef61ff7bf68f26f2155d057f477857aaff2a2da5d40e1492a314958185ab3f1cf064763fee
-authCrypto.crypto.hash(value, salt, 'SHA256');     // ⇨ 5607d5a6eabd064c30f582966df3c303fcd81731efbc548014267d58426abc1f
-authCrypto.crypto.hash(value, salt, 'MD5');        // ⇨ 7ad52f0862c310a186138681524eadc3
-authCrypto.crypto.hash(value, salt, 'SHA1');       // ⇨ ea8971d4fc8bf334bed9d5799314c62fb7337eb7
+authCrypto.crypto.saltHash(value, salt);               // ⇨ 120294cb8e1a5f03a6204b2aa86d2a6c4ad7484eb97d550dda7e9bef61ff7bf68f26f2155d057f477857aaff2a2da5d40e1492a314958185ab3f1cf064763fee
+authCrypto.crypto.saltHash(value, salt, 'SHA512');     // ⇨ 120294cb8e1a5f03a6204b2aa86d2a6c4ad7484eb97d550dda7e9bef61ff7bf68f26f2155d057f477857aaff2a2da5d40e1492a314958185ab3f1cf064763fee
+authCrypto.crypto.saltHash(value, salt, 'SHA256');     // ⇨ 5607d5a6eabd064c30f582966df3c303fcd81731efbc548014267d58426abc1f
+authCrypto.crypto.saltHash(value, salt, 'MD5');        // ⇨ 7ad52f0862c310a186138681524eadc3
+authCrypto.crypto.saltHash(value, salt, 'SHA1');       // ⇨ ea8971d4fc8bf334bed9d5799314c62fb7337eb7
 ```
 
 #### Generating Secrets
