@@ -101,7 +101,7 @@ class ConfigManager {
     set maxPasswordLength(max: number) {
         if (!Number.isInteger(max)) { throw new TypeError('The max password length must be a valid number and cannot be greater than 32') }
         if (max < 8) { throw new RangeError('The max password length cannot be less than 8') }
-        if (this.minPasswordLength && max > this.minPasswordLength) { throw new RangeError('The max password length cannot be greater than the min password length') }
+        if (this.minPasswordLength && max < this.minPasswordLength) { throw new RangeError('The max password length cannot be less than the min password length') }
         process.env.AuthCrypto_PASSWORDS_MAX = max.toString();
     }
 
@@ -135,9 +135,9 @@ class ConfigManager {
         if (typeof secret !== 'string') { throw new TypeError('The JWT secret must be a string') }
 
         const keyBytes = Buffer.byteLength(secret, 'utf8');
-        if (keyBytes < 64) { throw new Error(`The "AuthCrypto_JWT_SECRET" key must be at least 64 bytes long for HS512. Found: ${keyBytes} bytes.`); }
+        if (keyBytes < 64) { throw new Error(`The "AuthCrypto_SECRET" key must be at least 64 bytes long for HS512. Found: ${keyBytes} bytes.`); }
 
-        process.env.AuthCrypto_JWT_SECRET = secret;
+        process.env.AuthCrypto_SECRET = secret;
     }
 
     /**
