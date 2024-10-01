@@ -1,12 +1,15 @@
 import crypto from 'crypto';
 import { InvalidJWTVerification, JwtPayloadCreation, ValidJWTVerification } from '../../docs/docs';
+import ConfigManager from '../config/config';
 
 class JWTManager {
+    readonly #_configManager: ConfigManager;
     readonly #_headerEncoded: string;
     readonly #_defaultSecret = '69c2f24212965a25149358f4b12cb812a360d3031ede81d5428497ecdaf83ddec083572f38ca28134f13aba75d6af4e7d65f28508cb7cdbac19f667e7cac206f';
-    readonly #_secret: string;
 
-    constructor() {
+    constructor(configManager: ConfigManager) {
+        this.#_configManager = configManager;
+
         // Set the header
         const header = {
             alg: "HS512", // HMAC using SHA-512 hash algorithm
@@ -14,14 +17,10 @@ class JWTManager {
         };
 
         this.#_headerEncoded = this.#_helpers.base64urlEncode(JSON.stringify(header));
+    }
 
-        const secret = process.env.AuthCrypto_SECRET || this.#_defaultSecret;
-        if (!secret) { throw new Error('The JWT Secret is not defined in the process environment.') }
-
-        const keyBytes = Buffer.byteLength(secret, 'utf8');
-        if (keyBytes < 64) { throw new Error(`The key must be at least 64 bytes long for HS512. Found: ${keyBytes} bytes.`); }
-
-        this.#_secret = secret;
+    get #_secret() {
+        return this.#_configManager.jwtSecret || this.#_defaultSecret;
     }
 
     readonly #_helpers = Object.freeze({
@@ -176,4 +175,4 @@ class JWTManager {
     }
 }
 
-export default new JWTManager;
+export default JWTManager;

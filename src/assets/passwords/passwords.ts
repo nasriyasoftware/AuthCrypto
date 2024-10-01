@@ -1,9 +1,14 @@
 import crypto from 'crypto';
-import hashing from '../crypto/crypto';
-import { RandomOptions } from "../../docs/docs";
+import CryptoManager from '../crypto/crypto';
+import { HashAlgorithm, PasswordVerificationOptions, RandomOptions } from "../../docs/docs";
+import ConfigManager from '../config/config';
 
 class Passwords {
-    readonly #_config = {
+    readonly #_configManager: ConfigManager;
+    readonly #_hashing: CryptoManager;
+    readonly #_supportedAlgorithms: HashAlgorithm[] = ['SHA256', 'SHA512', 'MD5', 'SHA1'];
+
+    readonly #_defaults = {
         minLength: 8,
         maxLength: 32,
     }
@@ -21,45 +26,23 @@ class Passwords {
                 return value;
             }
             return value.padEnd(targetLength, ' '); // Pad with spaces
+        },
+        isPasswordVerificationOptions: (options: any): options is PasswordVerificationOptions => {
+            return options && typeof options === 'object' && ('algorithm' in options || 'salt' in options);
         }
     }
 
-    constructor() {
-        const minStr = process.env.AuthCrypto_PASSWORDS_MIN;
-        const maxStr = process.env.AuthCrypto_PASSWORDS_MAX;
+    get #_maxPasswordLength(): number {
+        return this.#_configManager.maxPasswordLength || this.#_defaults.maxLength;
+    }
 
-        if (minStr) {
-            if (typeof minStr !== 'string') {
-                throw new TypeError('AuthCrypto_PASSWORDS_MIN must be a string.');
-            }
+    get #_minPasswordLength(): number {
+        return this.#_configManager.minPasswordLength || this.#_defaults.minLength;
+    }
 
-            const minLength = Number.parseInt(minStr, 10);
-
-            if (isNaN(minLength) || minLength < 8) {
-                throw new RangeError('AuthCrypto_PASSWORDS_MIN must be a positive integer of at least 8.');
-            }
-
-            this.#_config.minLength = minLength;
-        }
-
-        if (maxStr) {
-            if (typeof maxStr !== 'string') {
-                throw new TypeError('AuthCrypto_PASSWORDS_MAX must be a string.');
-            }
-
-            const maxLength = Number.parseInt(maxStr, 10);
-
-            if (isNaN(maxLength) || maxLength > 32) {
-                throw new RangeError('AuthCrypto_PASSWORDS_MAX must be a positive integer not greater than 32.');
-            }
-
-            this.#_config.maxLength = maxLength;
-        }
-
-        // Ensure minLength is less than or equal to maxLength
-        if (this.#_config.minLength > this.#_config.maxLength) {
-            throw new RangeError(`AuthCrypto's minimum value ${this.#_config.minLength} cannot be greater than the maximum value ${this.#_config.maxLength}`);
-        }
+    constructor(configManager: ConfigManager) {
+        this.#_configManager = configManager;
+        this.#_hashing = new CryptoManager(this.#_configManager);
     }
 
     /**
@@ -70,8 +53,11 @@ class Passwords {
      * @throws {RangeError} If length is outside of the specified range
      */
     generate(length: number, options: RandomOptions = {}): string {
-        if (length < this.#_config.minLength || length > this.#_config.maxLength) {
-            throw new RangeError('Password length must be between 8 and 32 characters.');
+        const minLength = this.#_minPasswordLength;
+        const maxLength = this.#_maxPasswordLength;
+
+        if (length < minLength || length > maxLength) {
+            throw new RangeError(`Password length must be between ${minLength} and ${maxLength} characters.`);
         }
 
         const {
@@ -143,7 +129,7 @@ class Passwords {
      * @throws {TypeError} If password or hashedPassword is not a string.
      * @throws {Error} If the hashedPassword is not in the expected format.
      */
-    verify(password: string, hashedPassword: string, salt?: string): boolean {
+    verify(password: string, hashedPassword: string, options: PasswordVerificationOptions = { algorithm: 'SHA512' }): boolean {
         if (typeof password !== 'string') {
             throw new TypeError('The password must be a string.');
         }
@@ -152,13 +138,24 @@ class Passwords {
             throw new TypeError('The hashed password must be a string.');
         }
 
+        if (!this.#_helpers.isPasswordVerificationOptions(options)) {
+            throw new Error('The options must be a PasswordVerificationOptions object.');
+        }
+
+        const salt = options.salt;
+        const algorithm = options.algorithm || 'SHA512';
+
         if (salt !== undefined && typeof salt !== 'string') {
             throw new TypeError('The salt must be a string if provided.');
         }
 
+        if (!this.#_supportedAlgorithms.includes(algorithm)) {
+            throw new Error(`The algorithm ${algorithm} is not supported.`);
+        }
+
         // Combine the password and salt (if provided) and hash it
         const inputToHash = salt ? password + salt : password;
-        const hashedInput = hashing.hash(inputToHash);
+        const hashedInput = this.#_hashing.hash(inputToHash, algorithm);
 
         // Specify a random length
         const maxLength = Math.max(hashedInput.length, hashedPassword.length) + crypto.randomInt(50);
@@ -177,4 +174,4 @@ class Passwords {
     }
 }
 
-export default new Passwords();
+export default Passwords;

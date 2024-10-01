@@ -11,12 +11,13 @@ ___
 **AuthCrypto** is a powerful library for handling cryptographic operations and JWT (JSON Web Tokens) in Node.js applications. It provides utilities for hashing passwords, generating JWT tokens, and more.
 
 > [!IMPORTANT]
+> 
 > 🌟 **Support Our Open-Source Development!** 🌟
-> We need your support to keep our projects going! If you find our > work valuable, please consider contributing. Your support helps us > continue to develop and maintain these tools.
+> We need your support to keep our projects going! If you find our work valuable, please consider contributing. Your support helps us continue to develop and maintain these tools.
 > 
 > **[Click here to support us!](https://fund.nasriya.net/)**
 > 
-> Every contribution, big or small, makes a difference. Thank you for > your generosity and support!
+> Every contribution, big or small, makes a difference. Thank you for your generosity and support!
 ___
 ## Features
 
@@ -53,14 +54,10 @@ ___
 
 ## Configuration
 
-**AuthCrypto** reads configuration values from environment variables:
+**AuthCrypto** reads configuration values from environment variables or by setting them up manually:
 
-- `AuthCrypto_ROUNDS`: The number of hashing rounds for password hashing.
-- `AuthCrypto_PASSWORDS_MIN`: Minimum length for passwords (default: `8`).
-- `AuthCrypto_PASSWORDS_MAX`: Maximum length for passwords (default: `32`).
-- `AuthCrypto_SECRET`**`*`**: A secret phrase to generate and verify JWT. Can be generated from [crypto.generateSecret()](#generating-secrets).
-
-You can set these values in your `.env` file:
+### A) Environment Variables
+If you have full control over the source code, you can setup a `.env` file with the following properties:
 
 ```env
 AuthCrypto_ROUNDS=10
@@ -69,9 +66,34 @@ AuthCrypto_PASSWORDS_MAX=32
 AuthCrypto_SECRET=Your_secret
 ```
 
+- `AuthCrypto_ROUNDS`: The number of hashing rounds for password hashing.
+- `AuthCrypto_PASSWORDS_MIN`: Minimum length for passwords (default: `8`, min: `8`).
+- `AuthCrypto_PASSWORDS_MAX`: Maximum length for passwords (default: `32`).
+- `AuthCrypto_SECRET`**`*`**: A secret phrase to generate and verify JWT. Can be generated from [crypto.generateSecret()](#generating-secrets).
+
+### B) Manual Configuration
+You can manually set some or all configurations using the `config` module as follows:
+
+```js
+authCrypto.config.hashingRounds = 500;
+authCrypto.config.minPasswordLength = 10;
+authCrypto.config.maxPasswordLength = 32;
+authCrypto.config.jwtSecret = '<a 64 bytes secret>';
+```
+
+Or you can configure them all like this:
+
+```js
+authCrypto.config.set({
+    hashingRounds: 500,
+    minPasswordLength: 10,
+    maxPasswordLength: 32,
+    jwtSecret: '<a 64 bytes secret>'
+})
+```
 > **:warning: Important Note**
 > 
-> You must specify the `Crypto JWT_SECRET` variable in your environment, otherwise, your system might be at risk of forgery
+> You must specify the `Crypto JWT_SECRET` variable in your environment, or set it using `authCrypto.config.jwtSecret`, otherwise, your system might be at risk of forgery
 ___
 
 ## Usage
@@ -158,7 +180,7 @@ Explanation:
 The `verify` method checks if a provided password matches a previously hashed password.
 
 Example Usage:
-```ts
+```js
 const plainPassword = 'mySecretPassword';
 const hashedPassword = 'hashedPasswordFromDatabase'; // Assume this is a valid hashed password
 
@@ -167,13 +189,25 @@ const isMatch = Passwords.verify(plainPassword, hashedPassword);
 console.log(isMatch); // ⇨ true if the password matches, otherwise false
 ```
 
+Example with different algorith:
+```js
+const options = {
+    algorithm: 'SHA256' // Default: SHA512
+}
+
+const isMatch = Passwords.verify(plainPassword, hashedPassword, options);
+
+console.log(isMatch); // ⇨ true if the password matches, otherwise false
+```
 Example Usage with **salting**:
 ```ts
 const plainPassword = 'mySecretPassword';
 const hashedPassword = 'hashedPasswordFromDatabase'; // Assume this is a valid hashed password
-const salt = 'optionalSalt'; // If a salt was used during hashing
+const options = {
+    salt: 'optionalSalt', // If a salt was used during hashing
+}
 
-const isMatch = Passwords.verify(plainPassword, hashedPassword, salt);
+const isMatch = Passwords.verify(plainPassword, hashedPassword, options);
 
 console.log(isMatch); // ⇨ true if the password matches, otherwise false
 ```

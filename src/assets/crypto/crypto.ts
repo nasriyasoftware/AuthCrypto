@@ -1,21 +1,18 @@
 import crypto from 'crypto';
 import { HashAlgorithm } from '../../docs/docs';
+import ConfigManager from '../config/config';
 
 class CryptoManager {
+    readonly #_configManager: ConfigManager;
     readonly #_supportedAlgorithms: HashAlgorithm[] = ['SHA256', 'SHA512', 'MD5', 'SHA1'];
-    readonly #_config = Object.seal({
-        rounds: 37,
-    })
+    readonly #_defaultRounds = 37;    
 
-    constructor() {
-        const roundsStr = process.env.AuthCrypto_ROUNDS;
+    constructor(configManager: ConfigManager) {
+        this.#_configManager = configManager;       
+    }
 
-        if (roundsStr) {
-            if (typeof roundsStr !== 'string') { throw new Error(`You must specify the number of rounds (AuthCrypto_ROUNDS) for the AuthCrypto module in the .env file`) }
-            const rounds = Number.parseInt(roundsStr, 10);
-            if (isNaN(rounds) || rounds < 1) { throw new SyntaxError('The number of rounds must be a valid number and cannot be less than one') }
-            this.#_config.rounds = rounds;
-        }
+    get #_rounds() {
+        return this.#_configManager.hashingRounds || this.#_defaultRounds
     }
 
     /**
@@ -65,7 +62,7 @@ class CryptoManager {
         }
 
         let hashedInput = input
-        for (let i = 0; i < this.#_config.rounds; i++) {
+        for (let i = 0; i < this.#_rounds; i++) {
             hashedInput = crypto.createHash(algorithm).update(hashedInput).digest('hex');
         }
 
@@ -100,4 +97,4 @@ class CryptoManager {
     }
 }
 
-export default new CryptoManager();
+export default CryptoManager;

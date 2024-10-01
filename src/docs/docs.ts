@@ -104,3 +104,26 @@ export interface JwtPayloadDecoded extends JwtPayload {
     /** JWT issued at time in seconds since epoch */
     iat: number;
 }
+
+/**
+ * Options for password verification.
+ *
+ * @interface PasswordVerificationOptions
+ */
+export interface PasswordVerificationOptions {
+    /**
+     * Optional salt value to use for hashing the password.
+     *
+     * @optional
+     * @type {string}
+     */
+    salt?: string;
+
+    /**
+     * Optional hashing algorithm to use for password verification.
+     *
+     * @optional
+     * @type {HashAlgorithm}
+     */
+    algorithm?: HashAlgorithm;
+}
