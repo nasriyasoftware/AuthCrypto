@@ -142,32 +142,32 @@ class JWTManager {
 
         const [headerEncoded, payloadEncoded, signature] = parts;
 
+        // Decode the header/payload
+        const header = JSON.parse(Buffer.from(headerEncoded, 'base64').toString());
+        const payload = JSON.parse(Buffer.from(payloadEncoded, 'base64').toString());
+
+        // Verify the algorithm matches expected (e.g., HS512)
+        if (header.alg !== 'HS512') {
+            return { valid: false, message: `Unexpected algorithm: ${header.alg}` };
+        }
+
         // Verify the signature
         const expectedSignature = this.#_helpers.createSignature(`${headerEncoded}.${payloadEncoded}`);
         if (signature !== this.#_helpers.base64ToUrlEncoded(expectedSignature)) {
             return { valid: false, message: "Invalid token signature" };
         }
 
-        // Decode the header/payload
-        const header = JSON.parse(Buffer.from(headerEncoded, 'base64').toString());
-        const payload = JSON.parse(Buffer.from(payloadEncoded, 'base64').toString());
-
         if ('exp' in payload) {
-            if (typeof payload.exp === 'string' && payload.exp.endsWith('Z')) {
-                let expiryDate: Date;
-
-                try {
-                    expiryDate = new Date(payload.exp);
-                    const now = new Date();
-                    if (expiryDate <= now) {
-                        return { valid: false, message: "The token is expired" };
-                    }
-                } catch {
-                    return { valid: false, message: "Invalid expiry date value" };
+            if (typeof payload.exp === 'number') {
+                const now = Math.floor(Date.now() / 1000); // current time in seconds
+                if (payload.exp <= now) {
+                    return { valid: false, message: "The token is expired" };
                 }
+            } else {
+                return { valid: false, message: "Invalid 'exp' claim type" };
             }
         } else {
-            return { valid: false, message: "The token is missing the 'exp` property" };
+            return { valid: false, message: "Missing 'exp' claim" };
         }
 
         // Return the payload if the token is valid
